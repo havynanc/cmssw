@@ -483,14 +483,24 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
 
   //if we have really bad quality[Barrel no eta]
   //increase the resolution
+  //adding some hacks to retain coarse eta barrel treatment (previously encoded by etaQuality=0, now using isBarrel and isEndcap) after kmtf updates to report z and kslope as eta1 eta2
   ap_ufixed<BITSSIGMAETA, BITSSIGMAETA, AP_TRN_ZERO, AP_SAT_SYM> prop_sigma_eta1;
-  if (stub->etaQuality() == 0)
+  if (stub->etaQuality() == 0 || stub->isBarrel())
     prop_sigma_eta1 = prop.sigma_eta1 + 6;
   else
     prop_sigma_eta1 = prop.sigma_eta1;
 
-  ap_uint<BITSSIGMAETA + 1> deltaEta1 = deltaEta(prop.eta, stub->eta1());
-  if (deltaEta1 <= prop_sigma_eta1 && (stub->etaQuality() == 0 || (stub->etaQuality() & 0x1)))
+  ap_uint<BITSSIGMAETA + 1> deltaEta1;
+  if (stub->isEndcap()) {
+    deltaEta1 = deltaEta(prop.eta, stub->eta1());
+  }
+  else {
+    ap_uint<BITSSTUBETA>[4,3] coarseEtas = {{0,23,41},{0,20,36},{0,17,31},{0,14,27}};
+    ap_uint<BITSSTUBETA> coarseEta = coarseEtas[stub->depthRegion()-1, fabs(stub->etaRegion())];
+    deltaEta1 = deltaEta(prop.eta, coarseEta);
+  }
+
+  if (deltaEta1 <= prop_sigma_eta1 && (stub->etaQuality() == 0 || stub->isBarrel() || (stub->etaQuality() & 0x1)))
     eta1Matched = 1;
   else
     eta1Matched = 0;
@@ -504,7 +514,7 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   ap_uint<1> eta2Matched;
 
   ap_uint<BITSSIGMAETA + 1> deltaEta2 = deltaEta(prop.eta, stub->eta2());
-  if (deltaEta2 <= prop.sigma_eta2 && (stub->etaQuality() & 0x2))
+  if (deltaEta2 <= prop.sigma_eta2 && (stub->etaQuality() & 0x2) && stub->isEndcap())
     eta2Matched = 1;
   else
     eta2Matched = 0;
@@ -536,7 +546,7 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     bool match1 = (coord1Matched == 1 && eta1Matched == 1);
     bool match2 = (coord2Matched == 1 && eta2Matched == 1);
     bool match3 =
-        (coord1Matched == 1 && (eta1Matched || eta2Matched) && stub->etaQuality() == 3 && stub->quality() == 1);
+        (coord1Matched == 1 && (eta1Matched || eta2Matched) && stub->etaQuality() == 3 && stub->isEndcap() && stub->quality() == 1);
     out.valid = (match1 || match2 || match3) ? 1 : 0;
     if (out.valid == 0)
       out.quality = 0;
