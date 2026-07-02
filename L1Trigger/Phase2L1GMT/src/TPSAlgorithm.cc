@@ -500,8 +500,10 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
     deltaEta1 = deltaEta(prop.eta, stub->eta1());
   }
   else {
-    ap_uint<BITSSTUBETA>[4,3] coarseEtas = {{0,23,41},{0,20,36},{0,17,31},{0,14,27}};
-    ap_uint<BITSSTUBETA> coarseEta = coarseEtas[stub->depthRegion()-1, fabs(stub->etaRegion())];
+    ap_uint<BITSSTUBETA> coarseEtas[4][3] = {{0,23,41},{0,20,36},{0,17,31},{0,14,27}};
+    int station = stub->depthRegion();
+    int absWheel = fabs(stub->etaRegion());
+    ap_uint<BITSSTUBETA> coarseEta = coarseEtas[station-1][absWheel];
     deltaEta1 = deltaEta(prop.eta, coarseEta);
   }
 
