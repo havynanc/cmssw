@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
-   verbose = cms.int32(0),
+   verbose = cms.int32(2),
    srcCSC = cms.InputTag("simCscTriggerPrimitiveDigis"),
    srcDT = cms.InputTag("dtTriggerPhase2PrimitiveDigis"),
    srcDTTheta = cms.InputTag("simDtTriggerPrimitiveDigis"),
+   srcDTPairs = cms.InputTag("dtTriggerPhase2PrimitivePairDigis"),
    srcRPC = cms.InputTag("simMuonRPCDigis"),
    Endcap =cms.PSet(                            
-        verbose              = cms.uint32(0),
+        verbose              = cms.uint32(2),
         minBX                = cms.int32(0),                           
         maxBX                = cms.int32(0),         
         coord1LSB            = cms.double(0.00076660156*8),#was 32 
@@ -18,7 +19,7 @@ gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
         etaMatch             = cms.double(0.1)
     ),
    Barrel = cms.PSet(                         
-       verbose            = cms.int32(0),#2 for patterns
+       verbose            = cms.int32(2),#2 for patterns
        minPhiQuality      = cms.int32(0),#was 0!!!
        minThetaQuality    = cms.int32(0),
        minBX              = cms.int32(0),                           

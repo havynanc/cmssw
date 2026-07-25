@@ -5,12 +5,12 @@ gmtTkMuons = cms.EDProducer('Phase2L1TGMTTkMuonProducer',
                      minTrackStubs = cms.int32(4),     
                      muonBXMin = cms.int32(0),
                      muonBXMax = cms.int32(0),
-                            verbose   = cms.int32(0),     
+                            verbose   = cms.int32(1),     
                      trackConverter  = cms.PSet(
-                         verbose = cms.int32(0)
+                         verbose = cms.int32(1)
                      ),
                      trackMatching  = cms.PSet(
-                         verbose=cms.int32(0)
+                         verbose=cms.int32(1)
                      ),
                      isolation  = cms.PSet(
                        AbsIsoThresholdL = cms.int32(160),
@@ -19,7 +19,7 @@ gmtTkMuons = cms.EDProducer('Phase2L1TGMTTkMuonProducer',
                        RelIsoThresholdL = cms.double(0.1),
                        RelIsoThresholdM = cms.double(0.05),
                        RelIsoThresholdT = cms.double(0.01),
-                       verbose       = cms.int32(0),
+                       verbose       = cms.int32(1),
                        IsodumpForHLS = cms.int32(0),
                      ),
                     tauto3mu = cms.PSet()
