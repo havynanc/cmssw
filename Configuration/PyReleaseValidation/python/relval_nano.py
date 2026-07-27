@@ -716,3 +716,15 @@ workflows[_wfn()] = ['', ['DYToLL_M-50_13TeV_pythia8', 'NANOGENFromGen']]
 workflows[_wfn()] = ['', ['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV',
                           'Hadronizer_TuneCP5_13TeV_MLM_5f_max4j_LHE_pythia8', 'NANOGENFromGen']]
 workflows[_wfn()] = ['', ['TTbar_Pow_LHE_13TeV', 'Hadronizer_TuneCP5_13TeV_powhegEmissionVeto2p_pythia8', 'NANOGENFromGen']]
+
+################################################################
+# Phase-2 HLT with NANO
+from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
+from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
+
+# Phase-2 HLT NANO workflows
+_wfn = WFN(3000)
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.759]  # HLT75e33 + NANO
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.7591] # HLT75e33 + NANO (including validation)
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.772]  # NGTScouting + NANO
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.773]  # NGTScouting + NANO (including validation)

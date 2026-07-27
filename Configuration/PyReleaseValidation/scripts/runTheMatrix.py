@@ -101,6 +101,7 @@ if __name__ == '__main__':
             13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
             16834.0,    # RelValTTbar_14TeV             2025
             17034.0,    # RelValTTbar_14TeV             2025 PU = Run3_Flat55To75_PoissonOOTPU
+            17034.96,   # RelValTTbar_14TeV             2025 Hybrid PU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
             14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
             2500.3001,   # RelValTTbar_14TeV            NanoAOD from existing MINI
@@ -161,8 +162,8 @@ if __name__ == '__main__':
         'ph2_hlt' : [prefixDet+34.75,    # HLT phase-2 timing menu
                      prefixDet+34.7501,  # HLT phase-2 tracking-only menu
                      prefixDet+34.7502,  # HLT phase-2 tracking menu with tracking ntuple
+                     prefixDet+34.7503,  # HLT phase-2 menu, CPU vs. GPU validation
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
-                     prefixDet+34.752,   # HLT phase-2 timing menu ticl_v5 variant
                      prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
                      prefixDet+34.754,   # HLT phase-2 timing menu legacy tracking with Patatrack quads
@@ -173,9 +174,10 @@ if __name__ == '__main__':
                      prefixDet+34.759,   # HLT phase-2 menu, with NANO:@Phase2HLT
                      prefixDet+34.7591,  # HLT phase-2 menu, with NANO:@Phase2HLTVal
                      prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
-                     prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+                     prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
                      prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
                      prefixDet+34.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+                     prefixDet+34.774,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen
                      prefixDet+34.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
     }
 
@@ -868,7 +870,7 @@ if __name__ == '__main__':
                 for wfl in self.matrices_[args[0]].workFlows:
                     if re.match(pattern_dataset, wfl.nameId):
                         for step, command in enumerate(wfl.cmds):
-                            if re.match(pattern_command, command):
+                            if command is not None and re.match(pattern_command, str(command)):
                                 if wfl.numId not in cached:
                                     cached.append(wfl.numId)
                                     cached_steps[wfl.nameId] = {
