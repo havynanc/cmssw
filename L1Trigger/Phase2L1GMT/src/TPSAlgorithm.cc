@@ -498,13 +498,21 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   ap_uint<BITSSIGMAETA + 1> deltaEta1;
   if (stub->isEndcap()) {
     deltaEta1 = deltaEta(prop.eta, stub->eta1());
+    if (verbose_ == 1)
+      edm::LogInfo("TPSAlgo") << "no coarse eta used";
   }
   else {
-    ap_uint<BITSSTUBETA> coarseEtas[4][3] = {{0,23,41},{0,20,36},{0,17,31},{0,14,27}};
+    ap_int<BITSSTUBETA> coarseEtas[4][3] = {{0,23,41},{0,20,36},{0,17,31},{0,14,27}};
     int station = stub->depthRegion();
-    int absWheel = fabs(stub->etaRegion());
-    ap_uint<BITSSTUBETA> coarseEta = coarseEtas[station-1][absWheel];
+    int wheel = stub->etaRegion();
+    ap_int<BITSSTUBETA> coarseEta;
+    if (wheel >= 0)
+      coarseEta = coarseEtas[station-1][wheel];
+    else
+      coarseEta = -coarseEtas[station-1][-wheel];
     deltaEta1 = deltaEta(prop.eta, coarseEta);
+    if (verbose_ == 1)
+      edm::LogInfo("TPSAlgo") << "coarseEta=" << coarseEta;
   }
 
   if (deltaEta1 <= prop_sigma_eta1 && (stub->etaQuality() == 0 || stub->isBarrel() || (stub->etaQuality() & 0x1))) 
@@ -515,6 +523,8 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   if (verbose_ == 1)
     edm::LogInfo("TPSAlgo") << "eta1 matched=" << eta1Matched.to_int() << " delta=" << deltaEta1.to_int()
                             << " res=" << prop_sigma_eta1.to_int();
+  if (verbose_ == 1)
+    edm::LogInfo("TPSAlgo") << "stub->etaQuality()=" << stub->etaQuality() << " stub->isBarrel()=" << stub->isBarrel() << " stub->etaQuality()&0x1=" << (stub->etaQuality() & 0x1);
 
   //Matching of Eta2
 
@@ -532,6 +542,8 @@ match_t TPSAlgorithm::match(const propagation_t prop, const l1t::MuonStubRef& st
   if (verbose_ == 1)
     edm::LogInfo("TPSAlgo") << "eta2 matched=" << eta2Matched.to_int() << " delta=" << deltaEta2.to_int()
                             << " res=" << prop.sigma_eta2.to_int();
+  if (verbose_ == 1)
+    edm::LogInfo("TPSAlgo") << "stub->etaQuality()&0x2=" << (stub->etaQuality() & 0x2) << " stub->isEndcap()=" << stub->isEndcap();
 
   //Note I divided by 4 because of the new coordinate. Make it automatic
 
