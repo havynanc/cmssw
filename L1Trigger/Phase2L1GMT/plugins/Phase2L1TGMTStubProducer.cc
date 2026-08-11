@@ -84,7 +84,7 @@ l1t::MuonStubCollection Phase2L1TGMTStubProducer::convertToTPS(const l1t::MuonSt
                       stub.phiRegion(),
                       tfLayer1,
                       tfLayer1,
-                      stub.coord1() / 32,  // now 13 bits
+                      stub.coord1() / 256,  // 10 bits
                       0,  // no longer use coord2
                       stub.id(),
                       stub.bxNum(),
@@ -97,7 +97,7 @@ l1t::MuonStubCollection Phase2L1TGMTStubProducer::convertToTPS(const l1t::MuonSt
                       stub.phiRegion(),
                       tfLayer2,
                       tfLayer2,
-                      stub.coord2() / 32,  // now 13 bits
+                      stub.coord2() / 256,  // 10 bits
                       0,  // no longer use coord2
                       stub.id(),
                       stub.bxNum(),
