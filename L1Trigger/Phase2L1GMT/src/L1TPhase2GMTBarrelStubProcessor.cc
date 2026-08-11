@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1GMT/interface/L1TPhase2GMTBarrelStubProcessor.h"
+#include "L1Trigger/Phase2L1GMT/interface/ZtoEtaLUT.h"
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -255,5 +256,13 @@ int L1TPhase2GMTBarrelStubProcessor::calculateEta(uint i, int wheel, uint sector
     eta = eta3_[eta + 17];
 
   return eta;
+}
+
+int L1TPhase2GMTBarrelStubProcessor::zToEta(int z, int station) {
+  int addr = (z<0 ? -z:z)>>Phase2L1GMT::zToEtaShift;
+  if (addr >= Phase2L1GMT::zToEtaBins)
+    addr = Phase2L1GMT::zToEtaBins-1; //clamp addr to edges if overflow
+  int eta = Phase2L1GMT::zToEtaLUT[station-1][addr]; //look up eta given r,z
+  return z<0 ? -eta:eta; //put sign back onto eta so LUT only needs to store half as many nubmers
 }
 

@@ -79,6 +79,7 @@ Phase2L1TGMTStubProducer::~Phase2L1TGMTStubProducer() {
 l1t::MuonStubCollection Phase2L1TGMTStubProducer::convertToTPS(const l1t::MuonStub& stub) {
   uint tfLayer1 = 2 * (stub.depthRegion() - 1);
   uint tfLayer2 = 2 * (stub.depthRegion() - 1) + 1;
+  int eta=L1TPhase2GMTBarrelStubProcessor::zToEta(stub.eta1(), stub.depthRegion()); //stub.eta1() is z.
   l1t::MuonStub stub1(stub.etaRegion(),
                       stub.phiRegion(),
                       tfLayer1,
@@ -88,7 +89,7 @@ l1t::MuonStubCollection Phase2L1TGMTStubProducer::convertToTPS(const l1t::MuonSt
                       stub.id(),
                       stub.bxNum(),
                       0x1,  //for track matching // revisit this (quality)
-                      stub.eta(),
+                      eta,
                       0, //no longer use eta2
                       0x1, //revist this
                       stub.type());
@@ -101,7 +102,7 @@ l1t::MuonStubCollection Phase2L1TGMTStubProducer::convertToTPS(const l1t::MuonSt
                       stub.id(),
                       stub.bxNum(),
                       0x2,  //for track matching // revisit this (quality)
-                      stub.eta(),
+                      eta,
                       0, //no longer use eta2
                       0x1, //revist this
                       stub.type());

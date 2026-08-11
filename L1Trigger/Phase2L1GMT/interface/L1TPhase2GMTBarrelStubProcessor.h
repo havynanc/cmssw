@@ -21,6 +21,8 @@ public:
 
   l1t::MuonStubCollection makeStubs(const L1Phase2MuDTExtPhiThetaPairContainer*);
 
+  static int zToEta(int z, int station);
+
 private:
   l1t::MuonStub buildStubwithZandkSlope(const L1Phase2MuDTExtPhiThetaPair&);
   l1t::MuonStub buildStub(const L1Phase2MuDTPhDigi&, const L1MuDTChambThDigi*);
