@@ -36,16 +36,16 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& 
   int phi = int(gp.phi().value() / coord1LSB_);
   int eta1 = int(gp.eta() / eta1LSB_);
 
-  int wheel = 0;
+  int etaRegion = 0;
   // endcap: 1=forward (+Z), 2=backward(-Z) from CSCDetId
   int sign = endcap == 2 ? -1 : 1;
 
-  if (ring == 3)
-    wheel = sign * 3;
-  else if (ring == 2)
-    wheel = sign * 4;
+  if (((station == 1) && (ring == 3)) || ((station == 2) && (ring == 2)) || ((station == 3) && (ring == 2)))
+    etaRegion = sign * 3;
+  else if (((station == 1) && (ring == 2)) || ((station == 4) && (ring == 2)))
+    etaRegion = sign * 4;
   else if (ring == 1)
-    wheel = sign * 5;
+    etaRegion = sign * 5;
 
   int sector = fabs(chamber);
 
@@ -53,18 +53,20 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& 
   int quality = 1;
 
   uint tfLayer = 0;
-  if ((ring == 3 || ring == 2) && station == 1)  //ME1/3
-    tfLayer = 4;
-  else if (ring == 1 && station == 1)  //ME1/3
-    tfLayer = 0;
-  else if (station == 2)  //ME2/2
-    tfLayer = 2;
-  else if (station == 3)  //ME3/2
+  if ((station == 1) && (ring == 1))  //ME1/1
     tfLayer = 1;
-  else if (station == 4)  //ME4/2
+  else if (station == 4)  //ME4/x
     tfLayer = 3;
+  else if (station == 3)  //ME3/x
+    tfLayer = 5;
+  else if (station == 2)  //ME2/x
+    tfLayer = 6;
+  else if ((station == 1) && (ring == 2)) //ME1/2
+    tfLayer = 9; //should split into 8 and 9 somehow
+  else if ((station == 1) && (ring == 3)) //ME1/3
+    tfLayer = 10;
 
-  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, 0, tag, bx, quality, eta1, 0, 1, 0);
+  l1t::MuonStub stub(etaRegion, sector, tfLayer, tfLayer, phi, 0, tag, bx, quality, eta1, 0, 1, 0);
 
   stub.setOfflineQuantities(gp.phi().value(), 0.0, gp.eta(), 0.0);
   return stub;
@@ -79,7 +81,7 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildRPCOnlyStub(const RPCDetId& 
   int phi2 = int(gp.phi().value() / coord2LSB_);
   int eta2 = int(gp.eta() / eta2LSB_);
 
-  int wheel = -(6 - detid.ring()) * detid.region();
+  int etaRegion = 0;
   int sector = (detid.sector() - 1) * 6 + detid.subsector();
   int station = detid.station();
   bool tag = detid.trIndex();
@@ -87,25 +89,32 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildRPCOnlyStub(const RPCDetId& 
   int quality = 2;
 
   int ring = detid.ring();
+  int sign = eta2 < 0 ? -1 : 1;
 
   uint tfLayer = 0;
 
-  if ((ring == 3 || ring == 2) && station == 1)  //ME1/3
-    tfLayer = 4;
-  //  else if (ring==1 && station==1) //ME1/3
-  //    tfLayer=0;
-  else if (station == 2)  //ME2/2
-    tfLayer = 2;
-  else if (station == 3)  //ME3/2
-    tfLayer = 1;
-  else if (station == 4)  //ME4/2
-    tfLayer = 3;
+  if (((station == 1) && (ring == 3)) || (station == 2) || ((station == 3) && (ring == 2)) || ((station == 3) && (ring == 3))) //RE1/3, RE2/x, RE3/2, RE3/3
+    etaRegion = sign * 3;
+  else if (((station == 1) && (ring == 2)) || ((station == 4) && (ring == 2)) || ((station == 4) && (ring == 3))) //RE1/2, RE4/2, RE4/3
+    etaRegion = sign * 4;
+  else if (ring == 1) //REx/1
+    etaRegion = sign * 5;
 
-  l1t::MuonStub stub(wheel, sector, station, tfLayer, 0, phi2, tag, bx, quality, 0, eta2, 2, 0);
-  stub.setOfflineQuantities(gp.phi().value(), gp.phi().value(), gp.eta(), gp.eta());
+  if (station == 4) //RE4/x
+    tfLayer = 2;
+  else if (station == 3) //RE3/x
+    tfLayer = 4;
+  else if (station == 2) //RE2/x
+    tfLayer = 7;
+  else if (station == 1) //RE1/x
+    tfLayer = 8; //should split into 8 and 9 somehow
+
+  l1t::MuonStub stub(etaRegion, sector, tfLayer, tfLayer, 0, phi2, tag, bx, quality, eta2, 0, 2, 0);
+  stub.setOfflineQuantities(0.0, gp.phi().value(), 0.0, gp.eta()); //offline quantities will be an independent reminder of csc or rpc
   return stub;
 }
 
+/*
 l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::combineStubs(const l1t::MuonStubCollection& cscStubs,
                                                                       const l1t::MuonStubCollection& rpcStubs) {
   l1t::MuonStubCollection out;
@@ -240,6 +249,7 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::combineStubs(const l1t:
   };
   return out;
 }
+*/
 
 l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::makeStubs(
     const MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>& csc,
@@ -277,7 +287,14 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::makeStubs(
     }
   }
 
-  l1t::MuonStubCollection combinedStubs = combineStubs(cscStubs, rpcStubs);
+  //l1t::MuonStubCollection combinedStubs = combineStubs(cscStubs, rpcStubs);
+  l1t::MuonStubCollection combinedStubs;
+  for (const auto& stub : cscStubs) {
+    combinedStubs.push_back(stub);
+  }
+  for (const auto& stub : rpcStubs) {
+    combinedStubs.push_back(stub);
+  }
 
   if (verbose_) {
     edm::LogInfo("EndcapStub") << "CSC Stubs";
