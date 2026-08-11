@@ -32,7 +32,7 @@ private:
   void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
-  l1t::MuonStub convertToHybrid(const l1t::MuonStub& stub);
+  l1t::MuonStubCollection convertToTPS(const l1t::MuonStub& stub);
   edm::EDGetTokenT<MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>> srcCSC_;
   edm::EDGetTokenT<L1Phase2MuDTPhContainer> srcDT_;
   edm::EDGetTokenT<L1MuDTChambThContainer> srcDTTheta_;
@@ -76,22 +76,41 @@ Phase2L1TGMTStubProducer::~Phase2L1TGMTStubProducer() {
 // member functions
 //
 
-l1t::MuonStub Phase2L1TGMTStubProducer::convertToHybrid(const l1t::MuonStub& stub) {
-  l1t::MuonStub hybrid(stub.etaRegion(),
-                       stub.phiRegion(),
-                       stub.depthRegion(),
-                       stub.tfLayer(),
-                       stub.coord1() / 256,  //for track matching was 1024
-                       stub.coord2() / 256,  //for track matching was 1024
-                       stub.id(),
-                       stub.bxNum(),
-                       0x3,  //for track matching
-                       stub.eta1(),
-                       stub.eta2(),
-                       stub.etaQuality(),
-                       stub.type());
-  hybrid.setOfflineQuantities(stub.offline_coord1(), stub.offline_coord2(), stub.offline_eta1(), stub.offline_eta2());
-  return hybrid;
+l1t::MuonStubCollection Phase2L1TGMTStubProducer::convertToTPS(const l1t::MuonStub& stub) {
+  uint tfLayer1 = 2 * (stub.depthRegion() - 1);
+  uint tfLayer2 = 2 * (stub.depthRegion() - 1) + 1;
+  l1t::MuonStub stub1(stub.etaRegion(),
+                      stub.phiRegion(),
+                      tfLayer1,
+                      tfLayer1,
+                      stub.coord1() / 32,  // now 13 bits
+                      0,  // no longer use coord2
+                      stub.id(),
+                      stub.bxNum(),
+                      0x1,  //for track matching // revisit this (quality)
+                      stub.eta(),
+                      0, //no longer use eta2
+                      0x1, //revist this
+                      stub.type());
+  l1t::MuonStub stub2(stub.etaRegion(),
+                      stub.phiRegion(),
+                      tfLayer2,
+                      tfLayer2,
+                      stub.coord2() / 32,  // now 13 bits
+                      0,  // no longer use coord2
+                      stub.id(),
+                      stub.bxNum(),
+                      0x2,  //for track matching // revisit this (quality)
+                      stub.eta(),
+                      0, //no longer use eta2
+                      0x1, //revist this
+                      stub.type());
+  stub1.setOfflineQuantities(stub.offline_coord1(), 0.0, stub.offline_eta1(), stub.offline_eta2());
+  stub2.setOfflineQuantities(0.0, stub.offline_coord2(), stub.offline_eta1(), stub.offline_eta2()); //offline quantities will be an independent reminder of if phi or phib, and both etas filled will indicate barrel
+  l1t::MuonStubCollection pair;
+  pair.push_back(stub1);
+  pair.push_back(stub2);
+  return pair;
 }
 
 // ------------ method called to produce the data  ------------
@@ -124,8 +143,10 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
   }
   l1t::MuonStubCollection stubsBarrel = procBarrel_->makeStubs(dtPairs.product());
   for (auto& stub : stubsBarrel) {
-    //convert to Hybrid
-    stubs.push_back(convertToHybrid(stub));
+    //convert to TPS
+    l1t::MuonStubCollection pair = convertToTPS(stub);
+    stubs.push_back(pair[0]);
+    stubs.push_back(pair[1]);
     stubsKMTF.push_back(stub);
   }
 
