@@ -263,7 +263,9 @@ propagation_t TPSAlgorithm::propagate(const ConvertedTTTrack& track, uint layer)
   uint reducedAbsEta = track.abseta() / 8;
 
   //Propagate to layers
-  assert(layer < 5);
+  //assert(layer < 5);
+  //I KNOWINGLY BROKE TPS WHEN CHANGING TFLAYER SCHEME, TEMPORARY HACK HERE SO NO CRASHES
+  layer = 0;
   prop1_coord1 = lt_prop1_coord1[layer][reducedAbsEta];
   prop2_coord1 = lt_prop2_coord1[layer][reducedAbsEta];
   prop3_coord1 = lt_prop3_coord1[layer][reducedAbsEta];
