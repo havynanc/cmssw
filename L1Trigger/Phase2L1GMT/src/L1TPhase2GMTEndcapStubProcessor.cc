@@ -109,7 +109,7 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildRPCOnlyStub(const RPCDetId& 
   else if (station == 1) //RE1/x
     tfLayer = 8; //should split into 8 and 9 somehow
 
-  l1t::MuonStub stub(etaRegion, sector, tfLayer, tfLayer, 0, phi2, tag, bx, quality, eta2, 0, 2, 0);
+  l1t::MuonStub stub(etaRegion, sector, tfLayer, tfLayer, phi2, 0, tag, bx, quality, eta2, 0, 2, 0);
   stub.setOfflineQuantities(0.0, gp.phi().value(), 0.0, gp.eta()); //offline quantities will be an independent reminder of csc or rpc
   return stub;
 }
