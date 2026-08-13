@@ -34,6 +34,12 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& 
   const GlobalPoint& gp = translator->getGlobalPoint(primitive);
 
   int phi = int(gp.phi().value() / coord1LSB_);
+  while (phi < -std::pow(2, Phase2L1GMT::BITSSTUBCOORD-1)) {
+    phi = phi + std::pow(2, Phase2L1GMT::BITSSTUBCOORD);
+  }
+  while (phi >= std::pow(2, Phase2L1GMT::BITSSTUBCOORD-1)) {
+    phi = phi - std::pow(2, Phase2L1GMT::BITSSTUBCOORD);
+  }
   int eta1 = int(gp.eta() / eta1LSB_);
 
   int etaRegion = 0;
@@ -79,6 +85,12 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildRPCOnlyStub(const RPCDetId& 
   const GlobalPoint& gp = translator->getGlobalPoint(primitive);
 
   int phi2 = int(gp.phi().value() / coord2LSB_);
+  while (phi2 < -std::pow(2, Phase2L1GMT::BITSSTUBCOORD-1)) {
+    phi2 = phi2 + std::pow(2, Phase2L1GMT::BITSSTUBCOORD);
+  }
+  while (phi2 >= std::pow(2, Phase2L1GMT::BITSSTUBCOORD-1)) {
+    phi2 = phi2 - std::pow(2, Phase2L1GMT::BITSSTUBCOORD);
+  }
   int eta2 = int(gp.eta() / eta2LSB_);
 
   int etaRegion = 0;
