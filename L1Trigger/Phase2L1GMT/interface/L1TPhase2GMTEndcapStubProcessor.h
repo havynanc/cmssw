@@ -12,6 +12,9 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
 #include "L1Trigger/L1TTwinMux/interface/RPCHitCleaner.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
+#include "DataFormats/GEMDigi/interface/ME0TriggerDigi.h"
 
 class L1TPhase2GMTEndcapStubProcessor {
 public:
@@ -21,6 +24,8 @@ public:
 
   l1t::MuonStubCollection makeStubs(const MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>& csc,
                                     const MuonDigiCollection<RPCDetId, RPCDigi>& rpc,
+				    const MuonDigiCollection<GEMDetId, ME0TriggerDigi>& me0,
+				    const MuonDigiCollection<GEMDetId, GEMPadDigiCluster>& gem,
                                     const L1TMuon::GeometryTranslator* t,
                                     const edm::EventSetup& iSetup);
 
@@ -30,7 +35,9 @@ private:
                                  const L1TMuon::GeometryTranslator*,
                                  unsigned int);
   l1t::MuonStub buildRPCOnlyStub(const RPCDetId&, const RPCDigi&, const L1TMuon::GeometryTranslator*);
-  l1t::MuonStubCollection combineStubs(const l1t::MuonStubCollection&, const l1t::MuonStubCollection&);
+  l1t::MuonStub buildME0OnlyStub(const GEMDetId&, const ME0TriggerDigi&, const L1TMuon::GeometryTranslator*, unsigned int);
+  l1t::MuonStub buildGEMOnlyStub(const GEMDetId&, const GEMPadDigiCluster&, const L1TMuon::GeometryTranslator*, unsigned int);
+  l1t::MuonStubCollection clusterRPCStubs(const l1t::MuonStubCollection&);
 
   int minBX_;
   int maxBX_;

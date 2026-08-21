@@ -38,6 +38,8 @@ private:
   edm::EDGetTokenT<L1MuDTChambThContainer> srcDTTheta_;
   edm::EDGetTokenT<L1Phase2MuDTExtPhiThetaPairContainer> srcDTPairs_;
   edm::EDGetTokenT<RPCDigiCollection> srcRPC_;
+  edm::EDGetTokenT<MuonDigiCollection<GEMDetId, ME0TriggerDigi>> srcME0_;
+  edm::EDGetTokenT<MuonDigiCollection<GEMDetId, GEMPadDigiCluster>> srcGEM_;
 
   L1TPhase2GMTEndcapStubProcessor* procEndcap_;
   L1TPhase2GMTBarrelStubProcessor* procBarrel_;
@@ -52,6 +54,8 @@ Phase2L1TGMTStubProducer::Phase2L1TGMTStubProducer(const edm::ParameterSet& iCon
       srcDTTheta_(consumes<L1MuDTChambThContainer>(iConfig.getParameter<edm::InputTag>("srcDTTheta"))),
       srcDTPairs_(consumes<L1Phase2MuDTExtPhiThetaPairContainer>(iConfig.getParameter<edm::InputTag>("srcDTPairs"))),
       srcRPC_(consumes<RPCDigiCollection>(iConfig.getParameter<edm::InputTag>("srcRPC"))),
+      srcME0_(consumes<MuonDigiCollection<GEMDetId, ME0TriggerDigi>>(iConfig.getParameter<edm::InputTag>("srcME0"))),
+      srcGEM_(consumes<MuonDigiCollection<GEMDetId, GEMPadDigiCluster>>(iConfig.getParameter<edm::InputTag>("srcGEM"))),
       procEndcap_(new L1TPhase2GMTEndcapStubProcessor(iConfig.getParameter<edm::ParameterSet>("Endcap"))),
       procBarrel_(new L1TPhase2GMTBarrelStubProcessor(iConfig.getParameter<edm::ParameterSet>("Barrel"))),
       verbose_(iConfig.getParameter<int>("verbose")) {
@@ -125,6 +129,12 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
   Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByToken(srcRPC_, rpcDigis);
 
+  Handle<MuonDigiCollection<GEMDetId, ME0TriggerDigi>> me0Digis;
+  iEvent.getByToken(srcME0_, me0Digis);
+
+  Handle<MuonDigiCollection<GEMDetId, GEMPadDigiCluster>> gemDigis;
+  iEvent.getByToken(srcGEM_, gemDigis);
+
   Handle<L1Phase2MuDTPhContainer> dtDigis;
   iEvent.getByToken(srcDT_, dtDigis);
 
@@ -138,7 +148,7 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
   l1t::MuonStubCollection stubs;
   l1t::MuonStubCollection stubsKMTF;
 
-  l1t::MuonStubCollection stubsEndcap = procEndcap_->makeStubs(*cscDigis, *rpcDigis, translator_, iSetup);
+  l1t::MuonStubCollection stubsEndcap = procEndcap_->makeStubs(*cscDigis, *rpcDigis, *me0Digis, *gemDigis, translator_, iSetup);
   for (auto& stub : stubsEndcap) {
     stubs.push_back(stub);
   }
@@ -170,6 +180,8 @@ void Phase2L1TGMTStubProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("srcDTTheta", edm::InputTag("simDtTriggerPrimitiveDigis"));
   desc.add<edm::InputTag>("srcDTPairs", edm::InputTag("dtTriggerPhase2PrimitivePairDigis"));
   desc.add<edm::InputTag>("srcRPC", edm::InputTag("simMuonRPCDigis"));
+  desc.add<edm::InputTag>("srcME0", edm::InputTag("ge0TriggerConvertedPseudoDigis"));
+  desc.add<edm::InputTag>("srcGEM", edm::InputTag("simMuonGEMPadDigiClusters"));
   {
     edm::ParameterSetDescription psd0;
     psd0.add<unsigned int>("verbose", 0);
