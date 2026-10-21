@@ -68,7 +68,7 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& 
   else if (station == 2)  //ME2/x
     tfLayer = 6;
   else if ((station == 1) && ((ring == 2) || (ring == 3))) //ME1/2 and ME1/3
-    tfLayer = 10;
+    tfLayer = 9;
 
   l1t::MuonStub stub(etaRegion, sector, tfLayer, tfLayer, phi, 0, tag, bx, quality, eta1, 0, 1, 0);
 
@@ -116,17 +116,8 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildRPCOnlyStub(const RPCDetId& 
     tfLayer = 4;
   else if (station == 2) //RE2/x
     tfLayer = 7;
-  else if ((station == 1) && (ring == 3)) //RE1/3
+  else if (station == 1) //RE1/x
     tfLayer = 8;
-  else if ((station == 1) && (ring == 2)) { //RE1/2
-    // In the barrel, layer() differentiates between inner (1) and outer (2) RPCs.
-    // Currently layer()=1 always in the encap RPCs but this is likely how the two RE1/2's are supposed to be differentiated.
-    // For now, the outer RE1/2 is absorbed into layer 9 since layer()==2 is never satisfied.
-    if (detid.layer() == 1)
-      tfLayer = 9;
-    else if (detid.layer() == 2)
-      tfLayer = 8;
-  }
 
   l1t::MuonStub stub(etaRegion, sector, tfLayer, tfLayer, phi2, 0, tag, bx, quality, eta2, 0, 2, 0);
   stub.setOfflineQuantities(0.0, gp.phi().value(), 0.0, gp.eta()); //offline quantities will be an independent reminder of csc or rpc
@@ -157,7 +148,7 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildME0OnlyStub(const GEMDetId& 
   int etaRegion = sign * 5;
   int bx = digi.getBX() - 8;  // ME0TriggerDigi bx is centered at BX8, similar to CSC
   int quality = 1;
-  uint tfLayer = 10;
+  uint tfLayer = 9;
 
   l1t::MuonStub stub(etaRegion, chamber, tfLayer, tfLayer, phi, 0, tag, bx, quality, eta1, 0, 1, 0);
   stub.setOfflineQuantities(gp.phi().value(), 0.0, gp.eta(), 0.0);
